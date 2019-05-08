@@ -58,21 +58,11 @@ export function isTokenExpired(tokenExpiryTime) {
  * @return {string} The GC shopper token.
  */
 export async function getAccessToken(siteId, apiKey) {
-  const token = sessionStorage.getItem('gcAccessToken');
-  const tokenExpiryTime = sessionStorage.getItem('tokenExpiryTime');
+  try {
+    const res = await establishAccessToken(siteId, apiKey);
 
-  if (token && !isTokenExpired(tokenExpiryTime)) {
-    return token;
-  } else {
-    try {
-      const res = await establishAccessToken(siteId, apiKey);
-      const tokenExpiryTime = getTokenExpiryTime(res.data.expires_in);
-      
-      sessionStorage.setItem('tokenExpiryTime', tokenExpiryTime);
-
-      return res.data.access_token;
-    } catch (error) {
-      console.error(error.message);
-    }
+    return res.data.access_token;
+  } catch (error) {
+    console.error(error.message);
   }
 }
