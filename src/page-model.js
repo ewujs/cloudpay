@@ -30,6 +30,7 @@ export default class Page {
     this.checkoutButton = document.getElementById('checkoutButton');
     this.cloudPayRadio = document.getElementById('CloudPay');
     this.creditCardRadio = document.getElementById('CreditCardMethod');
+    this.payPalRadio = document.getElementById('PayPalExpressCheckout');
     this.testOrderCheckbox = document.querySelector('input[name="testOrder"]');
     // Credit Card elements
     this.cardNumberWrapper = document.getElementById('card-number');

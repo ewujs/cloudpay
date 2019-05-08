@@ -11,12 +11,18 @@ const CloudPayCheckout = {
   page: null,
   sourceId: null,
   paymentSource: null,
-  init(drPayments, siteInfo, enabledPayments, page) {
+  async init(drPayments, siteInfo, enabledPayments, page) {
     this.drPayments = drPayments;
     this.siteInfo = siteInfo;
     this.enabledPayments = enabledPayments;
     this.page = page;
     this.addEventListener();
+
+    try {
+      await this.preSelectPayment();
+    } catch (error) {
+      console.error(error.message);
+    }
   },
   /**
    * Set the payment method ID to the value of CloudPay's ID.
@@ -76,6 +82,36 @@ const CloudPayCheckout = {
       return false;
     }
   },
+  async preSelectPayment() {
+    const sourceId = sessionStorage.getItem('paymentSourceId');
+
+    if (sourceId) {
+      try {
+        const sourceType = await this.getSourceType(sourceId);
+
+        switch (sourceType) {
+          case 'creditCard': {
+            this.page.creditCardRadio.checked = true;
+            this.page.creditCardRadio.click();
+            
+            break;
+          }
+          case 'payPal': {
+            this.payPalRadio.checked = true;
+            this.payPalRadio.click();
+            
+            break;
+          }
+          default: {
+            this.page.creditCardRadio.checked = true;
+            this.page.creditCardRadio.click();
+          }
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
+    }
+  },
   /**
    * Submit the cart.
    * @async
@@ -118,7 +154,7 @@ const CloudPayCheckout = {
       }
       case 'PayPalExpressCheckout': {
         if (isMatched) {
-          window.location.href = this.paymentSource.source.redirect.redirectUrl;
+          window.location.href = this.paymentSource.redirect.redirectUrl;
         } else {
           const PP = new PayPalPayload(this.siteInfo, this.page);
 
