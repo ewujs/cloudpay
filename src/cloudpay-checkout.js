@@ -10,7 +10,7 @@ const CloudPayCheckout = {
   enabledPayments: null,
   page: null,
   sourceId: null,
-  paymentSource: null,
+  redirectUrl: null,
   async init(drPayments, siteInfo, enabledPayments, page) {
     this.drPayments = drPayments;
     this.siteInfo = siteInfo;
@@ -45,7 +45,9 @@ const CloudPayCheckout = {
     try {
       const res = await getPaymentSource(sourceId, this.siteInfo.apiKey);
 
-      this.paymentSource = res.data;
+      if (res.data.redirect) {
+        this.redirectUrl = res.data.redirect.redirectUrl;
+      }
 
       return res.data.type;
     } catch (error) {
@@ -165,7 +167,7 @@ const CloudPayCheckout = {
       }
       case 'PayPalExpressCheckout': {
         if (isMatched) {
-          window.location.href = this.paymentSource.redirect.redirectUrl;
+          window.location.href = this.redirectUrl;
         } else {
           const PP = new PayPalPayload(this.siteInfo, this.page);
 
