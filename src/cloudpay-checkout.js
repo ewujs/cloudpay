@@ -19,7 +19,7 @@ const CloudPayCheckout = {
     this.addEventListener();
 
     try {
-      await this.preSelectPayment();
+      await this.preSelectPayment(page);
     } catch (error) {
       console.error(error.message);
     }
@@ -82,7 +82,7 @@ const CloudPayCheckout = {
       return false;
     }
   },
-  async preSelectPayment() {
+  async preSelectPayment(page) {
     const sourceId = sessionStorage.getItem('paymentSourceId');
 
     if (sourceId) {
@@ -91,20 +91,26 @@ const CloudPayCheckout = {
 
         switch (sourceType) {
           case 'creditCard': {
-            this.page.creditCardRadio.checked = true;
-            this.page.creditCardRadio.click();
+            if (page.creditCardRadio) {
+              page.creditCardRadio.checked = true;
+              page.creditCardRadio.click();
+            }
             
             break;
           }
           case 'payPal': {
-            this.payPalRadio.checked = true;
-            this.payPalRadio.click();
+            if (page.payPalRadio) {
+              page.payPalRadio.checked = true;
+              page.payPalRadio.click();
+            }
             
             break;
           }
           default: {
-            this.page.creditCardRadio.checked = true;
-            this.page.creditCardRadio.click();
+            if (page.creditCardRadio) {
+              page.creditCardRadio.checked = true;
+              page.creditCardRadio.click();
+            }
           }
         }
       } catch (error) {
