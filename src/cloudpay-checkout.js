@@ -45,7 +45,7 @@ const CloudPayCheckout = {
     try {
       const res = await getPaymentSource(sourceId, this.siteInfo.apiKey);
 
-      this.paymentSource = res;
+      this.paymentSource = res.data;
 
       return res.data.type;
     } catch (error) {
@@ -82,6 +82,11 @@ const CloudPayCheckout = {
       return false;
     }
   },
+  /**
+   * Pre-select the payment method on page load.
+   * @async
+   * @param {string} page - An instance of the Page class.
+   */
   async preSelectPayment(page) {
     const sourceId = sessionStorage.getItem('paymentSourceId');
 
