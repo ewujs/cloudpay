@@ -116,7 +116,7 @@ class Payload {
 
       return res.data.lineItems.lineItem;
     } catch (error) {
-      console.error(error.message);
+      throw Error(error);
     }
   }
 
@@ -141,7 +141,7 @@ class Payload {
 
       return this.amount;
     } catch (error) {
-      console.error(error.message);
+      throw Error(error);
     }
   }
 
@@ -169,7 +169,7 @@ class Payload {
         }
       };
     } catch (error) {
-      console.error(error.message);
+      throw Error(error);
     }
   }  
 }

@@ -10,6 +10,8 @@ import { displayErrorMsg } from './utils';
  * @property {string} token - The PayPal token.
  * @property {string} redirectUrl - The customer should be redirected to to continue the process.
  * @property {Object} page - An instance of the Page class.
+ * @property {Function} init - A function that initiates drPayments, siteInfo and page properties.
+ * @property {Function} getToken - A function that gets the PayPal token.
  */
 const CloudPayPayPal = {
   siteInfo: null,
@@ -60,7 +62,7 @@ const CloudPayPayPal = {
           return this.token;
         });
       } catch (error) {
-        console.error(error.message);
+        throw Error(error);
       }
     }
   }

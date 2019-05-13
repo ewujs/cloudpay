@@ -284,9 +284,8 @@ describe('payload class', () => {
     const page = new Page();
     const P = new Payload(siteInfo, page);
     P.siteInfo = null;
-    
-    expect.assertions(1);
-    await expect(P.getLineItems()).resolves.toEqual(undefined);
+
+    await expect(P.getLineItems()).rejects.toThrow();
   });
 
   test('get order amount', async () => {
@@ -342,9 +341,8 @@ describe('payload class', () => {
     const page = new Page();
     const P = new Payload(siteInfo, page);
     P.apiDomain = null;
-    
-    expect.assertions(1);
-    await expect(P.getAmount()).resolves.toEqual(undefined);
+
+    await expect(P.getAmount()).rejects.toThrow();
   });
 
   test('get shipping object', async () => {
@@ -401,8 +399,7 @@ describe('payload class', () => {
     const page = new Page();
     const P = new Payload(siteInfo, page);
     P.apiDomain = null;
-    
-    expect.assertions(1);
-    await expect(P.getShippingObj()).resolves.toEqual(undefined);
+
+    await expect(P.getShippingObj()).rejects.toThrow();
   });
 });

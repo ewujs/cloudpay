@@ -32,7 +32,11 @@ import { getAccessToken } from './utils';
       CloudPayPayPal.init(digitalriverJS, siteInfo, page);
     }
 
-    CloudPayCheckout.init(digitalriverJS, siteInfo, enabledPayments, page);
+    try {
+      await CloudPayCheckout.init(digitalriverJS, siteInfo, enabledPayments, page);
+    } catch (error) {
+      console.error(error.message);
+    }
 
     try {
       const token = await getAccessToken(siteInfo.siteId, siteInfo.apiKey);

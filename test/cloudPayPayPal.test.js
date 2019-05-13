@@ -113,9 +113,7 @@ describe('CloudPay - PayPal', () => {
 
     CloudPayPayPal.token = null;
 
-    const token = await CloudPayPayPal.getToken();
-
-    expect(token).toEqual(undefined);
+    await expect(CloudPayPayPal.getToken()).rejects.toThrow();
   });
 
   test('fail to create source', async () => {

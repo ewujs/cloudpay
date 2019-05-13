@@ -63,6 +63,6 @@ export async function getAccessToken(siteId, apiKey) {
 
     return res.data.access_token;
   } catch (error) {
-    console.error(error.message);
+    throw Error(error);
   }
 }

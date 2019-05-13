@@ -110,15 +110,8 @@ describe('utils test', () => {
     sessionStorage.setItem('gcAccessToken', token);
   
     expect(token).toEqual('ACCESS_TOKEN');
-    expect(sessionStorage.getItem('tokenExpiryTime')).not.toBeNull();
-    expect(isTokenExpired(sessionStorage.getItem('tokenExpiryTime'))).not.toBeTruthy();
     expect(mockAxios.get).toHaveBeenCalledTimes(1);
     expect(mockAxios.get).toHaveBeenCalledWith('/sotw2/SessionToken?apiKey=6a0bb049109c4a0f8d8dff7db896254b');
-  
-    const existingToken = await getAccessToken(siteInfo.apiKey);
-
-    expect(existingToken).toEqual(token);
-    expect(mockAxios.get).toHaveBeenCalledTimes(1);
   });
 
   test('test error with getAccessToken', async () => {
@@ -132,10 +125,6 @@ describe('utils test', () => {
       })
     );
 
-    sessionStorage.removeItem('gcAccessToken');
-
-    const token = await getAccessToken(siteInfo.apiKey);
-
-    expect(token).toEqual(undefined);
+    await expect(getAccessToken(siteInfo.apiKey)).rejects.toThrow();
   });
 });

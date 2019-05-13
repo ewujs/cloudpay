@@ -4,6 +4,23 @@ import CloudPayCreditCard from './cloudpay-creditcard';
 import { displayErrorMsg } from './utils';
 import { getPaymentSource } from './apiEndpoints';
 
+/**
+ * A CloudPayCheckout object.
+ * @typedef {Object} CloudPayCheckout 
+ * @property {Object} drPayments - An instance of the DigitalRiver object.
+ * @property {Object} siteInfo - The site information.
+ * @property {string[]} enabledPayments - An array of the enabled payment types.
+ * @property {Object} page - An instance of the Page class.
+ * @property {string} sourceId - The payment sourceId.
+ * @property {string} redirectUrl - The customer should be redirected to to continue the process.
+ * @property {Function} init - A function that initiates the properties, attaches event handlers and pre-selects the payment method.
+ * @property {Function} updatePaymentMethodId - A function that sets the payment method ID to the value of CloudPay's ID.
+ * @property {Function} getSourceType - A function that gets the type of a source.
+ * @property {Function} isSourceTypeMatched - A function that checks if the type and the selected payment method are matched.
+ * @property {Function} preSelectPayment - A function that pre-selects the payment method on page load.
+ * @property {Function} submitCart - A function that submits the cart.
+ * @property {Function} addEventListener - A function that attaches an event handler function for an event to the target.
+ */
 const CloudPayCheckout = {
   drPayments: null,
   siteInfo: null,
@@ -11,17 +28,26 @@ const CloudPayCheckout = {
   page: null,
   sourceId: null,
   redirectUrl: null,
+  /**
+   * Initiate the properties, attaches event handlers and pre-selects the payment method.
+   * @param {Object} drPayments - An instance of the DigitalRiver object.
+   * @param {Object} siteInfo - The site information.
+   * @param {string[]} enabledPayments - An array of the enabled payment types.
+   * @param {Object} page - An instance of the Page class.
+   * @throws Will throw an error if preSelectPayment fails.
+   */
   async init(drPayments, siteInfo, enabledPayments, page) {
     this.drPayments = drPayments;
     this.siteInfo = siteInfo;
     this.enabledPayments = enabledPayments;
     this.page = page;
+    this.sourceId = sessionStorage.getItem('paymentSourceId');
     this.addEventListener();
 
     try {
-      await this.preSelectPayment(page);
+      await this.preSelectPayment(this.sourceId, page);
     } catch (error) {
-      console.error(error.message);
+      throw Error(error);
     }
   },
   /**
@@ -51,7 +77,7 @@ const CloudPayCheckout = {
 
       return res.data.type;
     } catch (error) {
-      console.error(error.message);
+      throw Error(error);
     }
   },
   /**
@@ -78,7 +104,7 @@ const CloudPayCheckout = {
           }
         }
       } catch (error) {
-        console.error(error.message);
+        throw Error(error);
       }
     } else {
       return false;
@@ -87,11 +113,10 @@ const CloudPayCheckout = {
   /**
    * Pre-select the payment method on page load.
    * @async
+   * @param {string} sourceId - The payment sourceId.
    * @param {string} page - An instance of the Page class.
    */
-  async preSelectPayment(page) {
-    const sourceId = sessionStorage.getItem('paymentSourceId');
-
+  async preSelectPayment(sourceId, page) {
     if (sourceId) {
       try {
         const sourceType = await this.getSourceType(sourceId);
@@ -121,7 +146,7 @@ const CloudPayCheckout = {
           }
         }
       } catch (error) {
-        console.error(error.message);
+        throw Error(error);
       }
     }
   },
@@ -137,7 +162,7 @@ const CloudPayCheckout = {
     try {
       isMatched = await this.isSourceTypeMatched(sourceId, selectedPayment);
     } catch (error) {
-      console.error(error.message);
+      throw Error(error);
     }  
 
     this.updatePaymentMethodId(selectedPayment);
@@ -173,7 +198,7 @@ const CloudPayCheckout = {
 
           try {
             const payload = await PP.buildPayload();
-            
+         
             this.drPayments.createSource(payload).then((result) => {
               if (result.hasOwnProperty('errors')) {
                 displayErrorMsg(this.page, result.errors[0].message);
@@ -185,7 +210,7 @@ const CloudPayCheckout = {
               }
             });
           } catch (error) {
-            console.error(error.message);
+            throw Error(error);
           }
         }
 
@@ -202,7 +227,7 @@ const CloudPayCheckout = {
         switch (selectedPayment) {
           case 'CreditCardMethod': {
             if (this.enabledPayments.indexOf('creditCard') >= 0) {
-              this.submitCart(selectedPayment);
+              this.submitCart(selectedPayment).catch(error => console.error(error.messgae));
             } else {
               this.page.checkoutForm.submit();
             }
@@ -211,7 +236,7 @@ const CloudPayCheckout = {
           }
           case 'PayPalExpressCheckout': {
             if (this.enabledPayments.indexOf('payPal') >= 0) {
-              this.submitCart(selectedPayment);
+              this.submitCart(selectedPayment).catch(error => console.error(error.messgae));
             } else {
               this.page.checkoutForm.submit();
             }

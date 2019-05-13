@@ -60,7 +60,7 @@ class PayPalPayload extends Payload {
   
       return itemsObj;
     } catch (error) {
-      console.error(error.message);
+      throw Error(error);
     }
   }
 
@@ -98,7 +98,7 @@ class PayPalPayload extends Payload {
 
       return sourceData;
     } catch (error) {
-      console.error(error.message);
+      throw Error(error);
     }
   }
 }

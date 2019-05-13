@@ -155,9 +155,7 @@ describe('build the PayPal payload', () => {
       cancelUrl: 'http://mypage.com/cancel'
     }, page);
 
-    const itemsObj = await P.getPayPalItemsObj();
-
-    expect(itemsObj).toEqual(undefined);
+    await expect(P.getPayPalItemsObj()).rejects.toThrow();
   });
 
   test('test error with buildPayload', async () => {
@@ -171,9 +169,7 @@ describe('build the PayPal payload', () => {
       cancelUrl: 'http://mypage.com/cancel'
     }, page);
 
-    const payload = await P.buildPayload();
-
-    expect(payload).toEqual(undefined);
+    await expect(P.buildPayload()).rejects.toThrow();
   });
 
   test('build the payload', async () => {
