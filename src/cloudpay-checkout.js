@@ -81,11 +81,13 @@ const CloudPayCheckout = {
     }
   },
   resetCreditCardSection() {
-    this.page.lastFourDigits.style.display ='none';
-    this.page.cardExpiration.style.display ='none';
-    this.page.cardNumberWrapper.style.display ='block';
-    this.page.cardExpirationWrapper.style.display ='block';
-    this.page.cardSecurityWrapper.style.display ='block';
+    if (this.page.lastFourDigits) {
+      this.page.lastFourDigits.style.display ='none';
+      this.page.cardExpiration.style.display ='none';
+      this.page.cardNumberWrapper.style.display ='block';
+      this.page.cardExpirationWrapper.style.display ='block';
+      this.page.cardSecurityWrapper.style.display ='block';
+    }
   },
   /**
    * Check if the source's type and the selected payment method are matched.
@@ -98,10 +100,6 @@ const CloudPayCheckout = {
     if (sourceId) {
       try {
         const sourceType = await this.getSourceType(sourceId);
-
-        if (sourceType !== 'creditCard') {
-          this.resetCreditCardSection();
-        }
 
         switch (selectedPayment) {
           case 'CreditCardMethod': {
@@ -134,6 +132,10 @@ const CloudPayCheckout = {
     if (sourceId) {
       try {
         const sourceType = await this.getSourceType(sourceId);
+
+        if (sourceType !== 'creditCard') {
+          this.resetCreditCardSection();
+        }
 
         switch (sourceType) {
           case 'creditCard': {
