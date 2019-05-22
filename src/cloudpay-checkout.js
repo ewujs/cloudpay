@@ -80,6 +80,13 @@ const CloudPayCheckout = {
       throw Error(error);
     }
   },
+  resetCreditCardSection() {
+    this.page.lastFourDigits.style.display ='none';
+    this.page.cardExpiration.style.display ='none';
+    this.page.cardNumberWrapper.style.display ='block';
+    this.page.cardExpirationWrapper.style.display ='block';
+    this.page.cardSecurityWrapper.style.display ='block';
+  },
   /**
    * Check if the source's type and the selected payment method are matched.
    * @async
@@ -92,12 +99,19 @@ const CloudPayCheckout = {
       try {
         const sourceType = await this.getSourceType(sourceId);
 
+        if (sourceType !== 'creditCard') {
+          this.resetCreditCardSection();
+        }
+
         switch (selectedPayment) {
           case 'CreditCardMethod': {
             return (sourceType === 'creditCard');
           }
           case 'PayPalExpressCheckout': {
             return (sourceType === 'payPal');
+          }
+          case 'SlimPayDirectDebit': {
+            return (sourceType === 'directDebit');
           }
           default: {
             return false;
@@ -138,6 +152,14 @@ const CloudPayCheckout = {
             
             break;
           }
+          case 'directDebit': {
+            if (page.directDebitRadio) {
+              page.directDebitRadio.checked = true;
+              page.directDebitRadio.click();
+            }
+
+            break;
+          }
           default: {
             if (page.creditCardRadio) {
               page.creditCardRadio.checked = true;
@@ -147,6 +169,11 @@ const CloudPayCheckout = {
         }
       } catch (error) {
         throw Error(error);
+      }
+    } else {
+      if (document.querySelector('input[name="paymentMethodID"]:first-child')) {
+        document.querySelector('input[name="paymentMethodID"]:first-child').checked = true;
+        document.querySelector('input[name="paymentMethodID"]:first-child').click();
       }
     }
   },

@@ -28,9 +28,11 @@ export default class Page {
     this.shippingAddressCheckbox = document.getElementById('shippingDifferentThanBilling');
     this.checkoutForm = document.querySelector('form[name="CheckoutAddressForm"]');
     this.checkoutButton = document.getElementById('checkoutButton');
+    this.paymentsRadio = document.querySelector('input[name="paymentMethodID"]');
     this.cloudPayRadio = document.getElementById('CloudPay');
     this.creditCardRadio = document.getElementById('CreditCardMethod');
     this.payPalRadio = document.getElementById('PayPalExpressCheckout');
+    this.directDebitRadio = document.getElementById('SlimPayDirectDebit');
     this.testOrderCheckbox = document.querySelector('input[name="testOrder"]');
     // Credit Card elements
     this.cardNumberWrapper = document.getElementById('card-number');
