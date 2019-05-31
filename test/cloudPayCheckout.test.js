@@ -2,6 +2,7 @@ import mockAxios from 'axios';
 import CloudPayCheckout from '../src/cloudpay-checkout';
 import Page from '../src/page-model';
 import PayPalPayload from '../src/payload/paypal-payload';
+import CreditCardPayload from '../src/payload/creditcard-payload';
 
 const setupDocumentBody = () => {
   document.body.innerHTML =
@@ -247,6 +248,8 @@ describe('CloudPay Checkout', () => {
     const page = new Page();
 
     page.checkoutForm.elements['ORIG_VALUE_cloudPaySourceID'].value = '';
+    
+    CreditCardPayload.prototype.buildPayload = jest.fn(() => Promise.resolve({data: {}}));
     
     page.checkoutForm.submit = jest.fn();
 

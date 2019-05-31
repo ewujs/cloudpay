@@ -37,7 +37,7 @@ describe('build the Credit Card payload', () => {
     expect(C).toBeInstanceOf(CreditCardPayload);
   });
    
-  test('build the payload', () => {
+  test('build the payload', async () => {
     const page = new Page();
     const C = new CreditCardPayload({currency: 'USD'}, page);
     
@@ -57,7 +57,7 @@ describe('build the Credit Card payload', () => {
       };
     });
 
-    const payload = C.buildPayload();
+    const payload = await C.buildPayload();
   
     expect(payload).toEqual(
       expect.objectContaining({

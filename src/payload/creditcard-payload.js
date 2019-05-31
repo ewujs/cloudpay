@@ -16,18 +16,22 @@ class CreditCardPayload extends Payload {
 
   /**
    * Build the Credit Card payload.
+   * @async
    * @return {Object} The Credit Card payload.
    */
-  buildPayload() {
+  async buildPayload() {
     let sourceData = {
       'type': 'creditCard',
       'currency': this.siteInfo.currency,
       'amount': 0
     };
 
-    sourceData['owner'] = super.getOwnerObj();
-
-    return sourceData;
+    try {
+      sourceData['owner'] = await super.getOwnerObj();
+      return sourceData;
+    } catch (error) {
+      throw Error(error);
+    }
   }
 }
 

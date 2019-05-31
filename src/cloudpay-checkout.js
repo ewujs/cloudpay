@@ -200,7 +200,7 @@ const CloudPayCheckout = {
       case 'CreditCardMethod': {
         if ((this.page.checkoutForm.elements['ORIG_VALUE_cloudPaySourceID'].value === '') || (!isMatched)) {
           const CP = new CreditCardPayload(this.siteInfo, this.page);
-          const payload = CP.buildPayload();
+          const payload = await CP.buildPayload();
 
           this.drPayments.createSource(CloudPayCreditCard.cardNumber, payload).then((result) => {
             if (result.hasOwnProperty('errors')) {
