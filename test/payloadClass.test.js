@@ -89,16 +89,29 @@ describe('payload class', () => {
     }).toThrow();
   });
   
-  test('get the owner object', () => {
+  test('get the owner object', async () => {
     const page = new Page();
     const P = new Payload({currency: 'USD'}, page);
-    const ownerObj = P.getOwnerObj();
+    const stubShopperObj = {
+      'id': 495302252089,
+      'emailAddress': 'ewu@dr.com'
+    };
+
+    mockAxios.get.mockImplementationOnce(() =>
+      Promise.resolve({
+        data: {
+          shopper: stubShopperObj
+        }
+      })
+    );
+
+    const ownerObj = await P.getOwnerObj();
   
     expect(ownerObj).toEqual(
       expect.objectContaining({
         'firstName': 'name1',
         'lastName': 'name2',
-        'email': 'email',
+        'email': 'ewu@dr.com',
         'address': {
           'line1': 'address1',
           'line2': 'address2',
@@ -114,10 +127,22 @@ describe('payload class', () => {
     );
   });
 
-  test('get the address object for digital products', () => {
+  test('get the Anonymous address object for digital products', async () => {
+    const stubShopperObj = {
+      'id': 'Anonymous'
+    };
+
+    mockAxios.get.mockImplementationOnce(() =>
+      Promise.resolve({
+        data: {
+          shopper: stubShopperObj
+        }
+      })
+    );
+    
     const page = new Page();
     const P = new Payload({currency: 'USD', shippingRequired: false}, page);
-    const addressObj = P.getAddressObj();
+    const addressObj = await P.getAddressObj();
 
     expect(addressObj).toEqual(
       expect.objectContaining({
@@ -142,12 +167,24 @@ describe('payload class', () => {
     );
   });
 
-  test('get the only-billing address object for physical products', () => {
+  test('get the Anonymous only-billing address object for physical products', async () => {
+    const stubShopperObj = {
+      'id': 'Anonymous'
+    };
+
+    mockAxios.get.mockImplementationOnce(() =>
+      Promise.resolve({
+        data: {
+          shopper: stubShopperObj
+        }
+      })
+    );
+
     document.getElementById('shippingDifferentThanBilling').checked = false;
     
     const page = new Page();
     const P = new Payload({currency: 'USD', shippingRequired: true}, page);
-    const addressObj = P.getAddressObj();
+    const addressObj = await P.getAddressObj();
 
     expect(addressObj).toEqual(
       expect.objectContaining({
@@ -186,12 +223,24 @@ describe('payload class', () => {
     );
   });
 
-  test('get the address object for physical products', () => {
+  test('get the Anonymous address object for physical products', async () => {
+    const stubShopperObj = {
+      'id': 'Anonymous'
+    };
+
+    mockAxios.get.mockImplementationOnce(() =>
+      Promise.resolve({
+        data: {
+          shopper: stubShopperObj
+        }
+      })
+    );
+
     document.getElementById('shippingDifferentThanBilling').checked = true;
     
     const page = new Page();
     const P = new Payload({currency: 'USD', shippingRequired: true}, page);
-    const addressObj = P.getAddressObj();
+    const addressObj = await P.getAddressObj();
 
     expect(addressObj).toEqual(
       expect.objectContaining({
@@ -276,7 +325,6 @@ describe('payload class', () => {
     const lineItems = await P.getLineItems();
 
     expect(lineItems).toEqual(stubLineItems);
-    expect(mockAxios.get).toHaveBeenCalledTimes(1);
     expect(mockAxios.get).toHaveBeenCalledWith('/me/carts/active/line-items?testOrder=true', {headers: {Authorization: 'Bearer null'}});
   });
 
@@ -391,7 +439,7 @@ describe('payload class', () => {
         'postalCode': stubShippingAddressObj.postalCode
       }
     });
-    expect(mockAxios.get).toHaveBeenCalledTimes(3);
+    
     expect(mockAxios.get).toHaveBeenCalledWith('/me/carts/active/shipping-address?testOrder=true', {headers: {Authorization: 'Bearer null'}});
   });
 

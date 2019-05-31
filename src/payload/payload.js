@@ -1,4 +1,4 @@
-import { retrieveLineItems, applyAddress, getShippingAddress } from '../apiEndpoints';
+import { retrieveLineItems, applyAddress, getShippingAddress, getBillingAddress, getCurrentShopper } from '../apiEndpoints';
 import { isTestOrder } from '../utils';
 
 /** Class representing a payload. */
@@ -28,79 +28,111 @@ class Payload {
 
   /**
    * Get the owner object.
+   * @async
    * @return {Object} The owner object.
    */
-  getOwnerObj() {
-    return {
-      'firstName': this.page.firstName.value,
-      'lastName': this.page.lastName.value,
-      'email': this.page.email.value,
-      'address': {
-        'line1': this.page.line1.value,
-        'line2': this.page.line2.value,
-        'city': this.page.city.value,
-        'state': this.page.state.value,
-        'postalCode': this.page.postalCode.value,
-        'country': this.page.country.value
-      }
-    };
+  async getOwnerObj() {
+    const token = sessionStorage.getItem('gcAccessToken');
+
+    try {
+      const currentShopper = await getCurrentShopper(this.testOrder, token);
+      const email = (currentShopper.data.shopper.id === 'Anonymous') ? this.page.email.value : currentShopper.data.shopper.emailAddress;
+
+      return {
+        'firstName': this.page.firstName.value,
+        'lastName': this.page.lastName.value,
+        'email': email,
+        'address': {
+          'line1': this.page.line1.value,
+          'line2': this.page.line2.value,
+          'city': this.page.city.value,
+          'state': this.page.state.value,
+          'postalCode': this.page.postalCode.value,
+          'country': this.page.country.value
+        }
+      };
+    } catch (error) {
+      throw Error(error);
+    }
   }
 
   /**
    * Get the address object.
+   * @async
    * @return {Object} The address object.
    */
-  getAddressObj() {
+  async getAddressObj() {
+    const token = sessionStorage.getItem('gcAccessToken');
+    let billingEmail;
+    let shippingEmail;
     let addressObj = {};
-    const billingAddressObj = {
-      'firstName': this.page.firstName.value,
-      'lastName': this.page.lastName.value,
-      'emailAddress': this.page.email.value,
-      'companyName': this.page.companyName.value,
-      'line1': this.page.line1.value,
-      'line2': this.page.line2.value,
-      'line3': null,
-      'city': this.page.city.value,
-      'countrySubdivision': this.page.state.value,
-      'postalCode': this.page.postalCode.value,
-      'country': this.page.country.value,
-      'phoneNumber': this.page.phoneNumber.value
-    };
 
-    if (this.siteInfo.shippingRequired && this.page.shippingAddressCheckbox) {
-      const isBillingOnly = !this.page.shippingAddressCheckbox.checked;
+    try {
+      const currentShopper = await getCurrentShopper(this.testOrder, token);
 
-      if (isBillingOnly) {
-        addressObj = {
-          'billingAddress': billingAddressObj,
-          'shippingAddress': billingAddressObj
-        };
+      if (currentShopper.data.shopper.id === 'Anonymous') {
+        billingEmail = this.page.email.value;
+        shippingEmail = this.page.shippingEmail.value;
+      } else {
+        const shopperBillingAddress = await getBillingAddress(this.testOrder, token);
+        const shopperShippingAddress = await getShippingAddress(this.testOrder, token);
+  
+        billingEmail = shopperBillingAddress.data.address.emailAddress;
+        shippingEmail = shopperShippingAddress.data.address.emailAddress;
+      }
+
+      const billingAddressObj = {
+        'firstName': this.page.firstName.value,
+        'lastName': this.page.lastName.value,
+        'emailAddress': billingEmail,
+        'companyName': this.page.companyName.value,
+        'line1': this.page.line1.value,
+        'line2': this.page.line2.value,
+        'line3': null,
+        'city': this.page.city.value,
+        'countrySubdivision': this.page.state.value,
+        'postalCode': this.page.postalCode.value,
+        'country': this.page.country.value,
+        'phoneNumber': this.page.phoneNumber.value
+      };
+
+      if (this.siteInfo.shippingRequired && this.page.shippingAddressCheckbox) {
+        const isBillingOnly = !this.page.shippingAddressCheckbox.checked;
+  
+        if (isBillingOnly) {
+          addressObj = {
+            'billingAddress': billingAddressObj,
+            'shippingAddress': billingAddressObj
+          };
+        } else {
+          addressObj = {
+            'billingAddress': billingAddressObj,
+            'shippingAddress': {
+              'firstName': this.page.shippingFirstName.value,
+              'lastName': this.page.shippingLastName.value,
+              'emailAddress': shippingEmail,
+              'companyName': this.page.shippingCompanyName.value,
+              'line1': this.page.shippingLine1.value,
+              'line2': this.page.shippingLine2.value,
+              'line3': null,
+              'city': this.page.shippingCity.value,
+              'countrySubdivision': this.page.shippingState.value,
+              'postalCode': this.page.shippingPostalCode.value,
+              'country': this.page.shippingCountry.value,
+              'phoneNumber': this.page.shippingPhoneNumber.value
+            }
+          };
+        }
       } else {
         addressObj = {
-          'billingAddress': billingAddressObj,
-          'shippingAddress': {
-            'firstName': this.page.shippingFirstName.value,
-            'lastName': this.page.shippingLastName.value,
-            'emailAddress': this.page.shippingEmail.value,
-            'companyName': this.page.shippingCompanyName.value,
-            'line1': this.page.shippingLine1.value,
-            'line2': this.page.shippingLine2.value,
-            'line3': null,
-            'city': this.page.shippingCity.value,
-            'countrySubdivision': this.page.shippingState.value,
-            'postalCode': this.page.shippingPostalCode.value,
-            'country': this.page.shippingCountry.value,
-            'phoneNumber': this.page.shippingPhoneNumber.value
-          }
+          'billingAddress': billingAddressObj
         };
       }
-    } else {
-      addressObj = {
-        'billingAddress': billingAddressObj
-      };
+  
+      return addressObj;
+    } catch (error) {
+      throw Error(error);
     }
-
-    return addressObj;
   }
 
   /**

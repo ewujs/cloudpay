@@ -98,7 +98,6 @@ import DirectDebitPayload from './payload/directdebit-payload';
     return payload;
   };
 
-
   window.DRCloudPay = {
     init: init,
     buildPayload: buildPayload
