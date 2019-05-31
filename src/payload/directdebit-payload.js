@@ -12,26 +12,33 @@ class DirectDebitPayload extends Payload {
    */
   constructor(siteInfo, page) {
     super(siteInfo, page);
+    this.amount = 0;
   }
 
   /**
    * Build the Direct Debit payload.
-   * @return {Object} The Direct Debit payload.
+   * @async
+   * @return {Promise<Object>} The Direct Debit payload.
    */
-  buildPayload() {
+  async buildPayload() {
     let sourceData = {
       'type': 'directDebit',
-      'currency': this.siteInfo.currency,
-      'amount': 0,
+      'currency': 'EUR',
       'directDebit': {
         'returnUrl': this.siteInfo.returnUrl
       }
     };
 
-    sourceData['owner'] = super.getOwnerObj();
-    delete sourceData.owner.address.state;
-
-    return sourceData;
+    try {
+      await super.getAmount();
+      sourceData['amount'] = this.amount;
+      sourceData['owner'] = await super.getOwnerObj();
+      delete sourceData.owner.address.state;
+  
+      return sourceData;
+    } catch (error) {
+      throw Error(error);
+    }
   }
 }
 

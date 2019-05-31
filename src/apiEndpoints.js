@@ -35,6 +35,8 @@ export const retrieveLineItems = (isTestOrder, token) => shoppersApi.get(`/me/ca
 
 export const applyAddress = (isTestOrder, data, token) => shoppersApi.post(`/me/carts/active?testOrder=${isTestOrder}`, data, {headers: {Authorization: `Bearer ${token}`}});
 
+export const applyPaymentMethod = (isTestOrder, data, token) => shoppersApi.post(`/me/carts/active/apply-payment-method?testOrder=${isTestOrder}`, data, {headers: {Authorization: `Bearer ${token}`}});
+
 export const getShippingAddress = (isTestOrder, token) => shoppersApi.get(`/me/carts/active/shipping-address?testOrder=${isTestOrder}`, {headers: {Authorization: `Bearer ${token}`}});
 
 export const getBillingAddress = (isTestOrder, token) => shoppersApi.get(`/me/carts/active/billing-address?testOrder=${isTestOrder}`, {headers: {Authorization: `Bearer ${token}`}});

@@ -23,7 +23,7 @@ export default class Page {
     this.shippingCity = document.getElementById('shippingCity');
     this.shippingState = document.getElementById('shippingState');
     this.shippingPostalCode = document.getElementById('shippingPostalCode');
-    this.shippingCountry = document.getElementById('shippingCountry');    
+    this.shippingCountry = document.getElementById('shippingCountry');
     // GC site elements
     this.shippingAddressCheckbox = document.getElementById('shippingDifferentThanBilling');
     this.checkoutForm = document.querySelector('form[name="CheckoutAddressForm"]');
@@ -32,7 +32,7 @@ export default class Page {
     this.cloudPayRadio = document.getElementById('CloudPay');
     this.creditCardRadio = document.getElementById('CreditCardMethod');
     this.payPalRadio = document.getElementById('PayPalExpressCheckout');
-    this.directDebitRadio = document.getElementById('SlimPayDirectDebit');
+    this.directDebitRadio = document.getElementById('DirectDebit');
     this.testOrderCheckbox = document.querySelector('input[name="testOrder"]');
     // Credit Card elements
     this.cardNumberWrapper = document.getElementById('card-number');

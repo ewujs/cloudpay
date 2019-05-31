@@ -37,10 +37,11 @@ describe('build the Direct Debit payload', () => {
     expect(D).toBeInstanceOf(DirectDebitPayload);
   });
    
-  test('build the payload', () => {
+  test('build the payload', async () => {
     const page = new Page();
     const D = new DirectDebitPayload({currency: 'EUR', returnUrl: 'http://mypage.com'}, page);
     
+    Payload.prototype.getAmount = jest.fn();
     Payload.prototype.getOwnerObj = jest.fn(() => {
       return {
         'firstName': page.firstName.value,
@@ -57,7 +58,7 @@ describe('build the Direct Debit payload', () => {
       };
     });
 
-    const payload = D.buildPayload();
+    const payload = await D.buildPayload();
   
     expect(payload).toEqual(
       expect.objectContaining({

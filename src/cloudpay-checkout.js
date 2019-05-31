@@ -6,7 +6,7 @@ import { getPaymentSource } from './apiEndpoints';
 
 /**
  * A CloudPayCheckout object.
- * @typedef {Object} CloudPayCheckout 
+ * @typedef {Object} CloudPayCheckout
  * @property {Object} drPayments - An instance of the DigitalRiver object.
  * @property {Object} siteInfo - The site information.
  * @property {string[]} enabledPayments - An array of the enabled payment types.
@@ -108,7 +108,7 @@ const CloudPayCheckout = {
           case 'PayPalExpressCheckout': {
             return (sourceType === 'payPal');
           }
-          case 'SlimPayDirectDebit': {
+          case 'DirectDebit': {
             return (sourceType === 'directDebit');
           }
           default: {
@@ -192,7 +192,7 @@ const CloudPayCheckout = {
       isMatched = await this.isSourceTypeMatched(sourceId, selectedPayment);
     } catch (error) {
       throw Error(error);
-    }  
+    }
 
     this.updatePaymentMethodId(selectedPayment);
 
@@ -268,6 +268,13 @@ const CloudPayCheckout = {
               this.submitCart(selectedPayment).catch(error => console.error(error.messgae));
             } else {
               this.page.checkoutForm.submit();
+            }
+
+            break;
+          }
+          case 'DirectDebit': {
+            if (this.enabledPayments.indexOf('directDebit') >= 0) {
+              //do nothing
             }
 
             break;
