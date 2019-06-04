@@ -72,13 +72,19 @@ class Payload {
 
       if (currentShopper.data.shopper.id === 'Anonymous') {
         billingEmail = this.page.email.value;
-        shippingEmail = this.page.shippingEmail.value;
+        if (this.siteInfo.shippingRequired) {
+          shippingEmail = this.page.shippingEmail.value;
+        }
       } else {
-        const shopperBillingAddress = await getBillingAddress(this.testOrder, token);
-        const shopperShippingAddress = await getShippingAddress(this.testOrder, token);
-  
+        const shopperBillingAddress = await getBillingAddress(this.testOrder, token);  
+        
         billingEmail = shopperBillingAddress.data.address.emailAddress;
-        shippingEmail = shopperShippingAddress.data.address.emailAddress;
+
+        if (this.siteInfo.shippingRequired) {
+          const shopperShippingAddress = await getShippingAddress(this.testOrder, token);
+
+          shippingEmail = shopperShippingAddress.data.address.emailAddress;
+        }
       }
 
       const billingAddressObj = {
