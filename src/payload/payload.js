@@ -158,7 +158,7 @@ class Payload {
    * @return {number} The value of the order total.
    */
   async getAmount() {
-    const addressObj = this.getAddressObj();
+    const addressObj = await this.getAddressObj();
     const data = {
       cart: addressObj
     };
