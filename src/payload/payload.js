@@ -72,6 +72,7 @@ class Payload {
 
       if (currentShopper.data.shopper.id === 'Anonymous') {
         billingEmail = this.page.email.value;
+        
         if (this.siteInfo.shippingRequired) {
           shippingEmail = this.page.shippingEmail.value;
         }

@@ -220,27 +220,23 @@ const CloudPayCheckout = {
         break;
       }
       case 'PayPalExpressCheckout': {
-        if (isMatched) {
-          window.location.href = this.redirectUrl;
-        } else {
-          const PP = new PayPalPayload(this.siteInfo, this.page);
+        const PP = new PayPalPayload(this.siteInfo, this.page);
 
-          try {
-            const payload = await PP.buildPayload();
-         
-            this.drPayments.createSource(payload).then((result) => {
-              if (result.hasOwnProperty('errors')) {
-                displayErrorMsg(this.page, result.errors[0].message);
-              } else {
-                sessionStorage.setItem('paymentSourceId', result.source.id);
-                this.sourceId = result.source.id;
-                this.page.checkoutForm.elements['cloudPaySourceID'].value = result.source.id;
-                window.location.href = result.source.redirect.redirectUrl;
-              }
-            });
-          } catch (error) {
-            throw Error(error);
-          }
+        try {
+          const payload = await PP.buildPayload();
+        
+          this.drPayments.createSource(payload).then((result) => {
+            if (result.hasOwnProperty('errors')) {
+              displayErrorMsg(this.page, result.errors[0].message);
+            } else {
+              sessionStorage.setItem('paymentSourceId', result.source.id);
+              this.sourceId = result.source.id;
+              this.page.checkoutForm.elements['cloudPaySourceID'].value = result.source.id;
+              window.location.href = result.source.redirect.redirectUrl;
+            }
+          });
+        } catch (error) {
+          throw Error(error);
         }
 
         break;
