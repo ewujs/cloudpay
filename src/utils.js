@@ -1,4 +1,4 @@
-import { establishAccessToken } from './apiEndpoints';
+import {establishAccessToken} from './apiEndpoints';
 
 /**
 * Get the API domain.

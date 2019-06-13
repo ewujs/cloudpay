@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getApiDomain } from './utils';
+import {getApiDomain} from './utils';
 
 const subdomain = window.location.hostname.split('.')[0];
 const apiDomain = getApiDomain(subdomain);

@@ -213,7 +213,8 @@ describe('build the PayPal payload', () => {
           }],
           'taxAmount': 0,
           'shippingAmount': 0,
-          'amountsEstimated': true
+          'amountsEstimated': true,
+          'requestShipping': false
         } 
       }),
       expect.not.objectContaining({
@@ -256,6 +257,7 @@ describe('build the PayPal payload', () => {
           }],
           'taxAmount': 0,
           'amountsEstimated': true,
+          'requestShipping': true,
           'shippingAmount': 0,
           'shipping': {
             'recipient': 'abc xyz',

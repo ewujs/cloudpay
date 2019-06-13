@@ -1,5 +1,5 @@
 import PayPalPayload from './payload/paypal-payload';
-import { displayErrorMsg } from './utils';
+import {displayErrorMsg} from './utils';
 
 /**
  * A CloudPayPayPal object.

@@ -374,15 +374,15 @@ describe('payload class', () => {
         }
       })
     );
-
+    
+    Payload.prototype.getAddressObj = jest.fn();
+    
     const page = new Page();
     const P = new Payload(siteInfo, page);
     const amount = await P.getAmount();
-    const addressObj = P.getAddressObj();
 
     expect(amount).toEqual(stubCartPricing.orderTotal.value);
     expect(mockAxios.post).toHaveBeenCalledTimes(1);
-    expect(mockAxios.post).toHaveBeenCalledWith('/me/carts/active?testOrder=true', {cart: addressObj}, {headers: {Authorization: 'Bearer null'}});
   });
 
   test('test error with getAmount', async () => {

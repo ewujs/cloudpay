@@ -359,16 +359,6 @@ describe('CloudPay Checkout', () => {
     expect(CloudPayCheckout.sourceId).toBeNull();
   });
 
-  test('submit cart using PayPal as isSourceTypeMatched returns true', async () => {
-    CloudPayCheckout.isSourceTypeMatched = jest.fn(() => {return true;});
-
-    CloudPayCheckout.sourceId = null;
-
-    await CloudPayCheckout.submitCart('PayPalExpressCheckout');
-
-    expect(CloudPayCheckout.sourceId).toBeNull();
-  });
-
   test('click the checkout button as no payment matched', async () => {
     document.getElementById('CloudPay').checked = true;
 

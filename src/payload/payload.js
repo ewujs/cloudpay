@@ -1,5 +1,5 @@
-import { retrieveLineItems, applyAddress, getShippingAddress, getBillingAddress, getCurrentShopper } from '../apiEndpoints';
-import { isTestOrder } from '../utils';
+import {retrieveLineItems, applyAddress, getShippingAddress, getBillingAddress, getCurrentShopper} from '../apiEndpoints';
+import {isTestOrder} from '../utils';
 
 /** Class representing a payload. */
 class Payload {

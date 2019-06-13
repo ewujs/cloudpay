@@ -2,7 +2,7 @@ import CloudPayCreditCard from './cloudpay-creditcard';
 import CloudPayPayPal from './cloudpay-paypal';
 import CloudPayCheckout from './cloudpay-checkout';
 import Page from './page-model';
-import { getAccessToken } from './utils';
+import {getAccessToken} from './utils';
 import CreditCardPayload from './payload/creditcard-payload';
 import PayPalPayload from './payload/paypal-payload';
 import DirectDebitPayload from './payload/directdebit-payload';

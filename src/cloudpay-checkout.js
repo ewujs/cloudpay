@@ -1,8 +1,8 @@
 import CreditCardPayload from './payload/creditcard-payload';
 import PayPalPayload from './payload/paypal-payload';
 import CloudPayCreditCard from './cloudpay-creditcard';
-import { displayErrorMsg } from './utils';
-import { getPaymentSource } from './apiEndpoints';
+import {displayErrorMsg} from './utils';
+import {getPaymentSource} from './apiEndpoints';
 
 /**
  * A CloudPayCheckout object.

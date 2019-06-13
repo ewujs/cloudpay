@@ -86,7 +86,8 @@ class PayPalPayload extends Payload {
         'items': itemsObj,
         'taxAmount': this.taxAmount,
         'shippingAmount': this.shippingAmount,
-        'amountsEstimated': this.amountsEstimated
+        'amountsEstimated': this.amountsEstimated,
+        'requestShipping': this.siteInfo.shippingRequired
       };
 
       if (this.siteInfo.shippingRequired) {
