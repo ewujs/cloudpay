@@ -185,15 +185,6 @@ const CloudPayCheckout = {
    * @param {string} selectedPayment - The element's identifier of the selected payment method.
    */
   async submitCart(selectedPayment) {
-    const sourceId = sessionStorage.getItem('paymentSourceId');
-    let isMatched = false;
-
-    try {
-      isMatched = await this.isSourceTypeMatched(sourceId, selectedPayment);
-    } catch (error) {
-      throw Error(error);
-    }
-
     this.updatePaymentMethodId(selectedPayment);
 
     switch (selectedPayment) {
@@ -274,6 +265,10 @@ const CloudPayCheckout = {
             this.page.checkoutForm.submit();
           }
         }
+      });
+
+      document.addEventListener('DOMContentLoaded', (event) => {
+        
       });
     }
   }
