@@ -51,11 +51,11 @@ export function isTokenExpired(tokenExpiryTime) {
 }
 
 /**
- * Get GC shopper token.
+ * Get limited access token.
  * @async
  * @param {string} siteId - The site ID.
- * @param {string} apiKey - The API key.
- * @return {string} The GC shopper token.
+ * @param {string} apiKey - The public API key.
+ * @return {string} The limited access token.
  */
 export async function getAccessToken(siteId, apiKey) {
   try {

@@ -9,7 +9,7 @@ const paymentsService = axios.create({
   baseURL: `https://${apiDomain}/payments/`
 });
 
-// Shoppers API
+// Commerce API
 const shoppersApi = axios.create({
   baseURL: `https://${apiDomain}/v1/shoppers/`,
   headers: {
@@ -42,3 +42,5 @@ export const getShippingAddress = (isTestOrder, token) => shoppersApi.get(`/me/c
 export const getBillingAddress = (isTestOrder, token) => shoppersApi.get(`/me/carts/active/billing-address?testOrder=${isTestOrder}`, {headers: {Authorization: `Bearer ${token}`}});
 
 export const getCurrentShopper = (isTestOrder, token) => shoppersApi.get(`/me?testOrder=${isTestOrder}`, {headers: {Authorization: `Bearer ${token}`}});
+
+export const getCartData = (isTestOrder, token) => shoppersApi.get(`/me/carts/active?testOrder=${isTestOrder}`, {headers: {Authorization: `Bearer ${token}`}});
