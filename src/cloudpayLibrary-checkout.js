@@ -165,9 +165,14 @@ const CloudPayCheckout = {
         }
       }      
     } else {
-      if (document.querySelector('input[name="paymentMethodID"]:first-child')) {
-        document.querySelector('input[name="paymentMethodID"]:first-child').checked = true;
-        document.querySelector('input[name="paymentMethodID"]:first-child').click();
+      const payments = document.querySelectorAll('input[name="paymentMethodID"]');
+
+      if (payments[0].id !== 'CloudPay') {
+        payments[0].checked = true;
+        payments[0].click();
+      } else {
+        payments[1].checked = true;
+        payments[1].click();
       }
     }
   },
