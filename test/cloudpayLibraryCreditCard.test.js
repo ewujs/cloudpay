@@ -52,7 +52,7 @@ describe('CloudPay - Credit Card', () => {
     const mount = (id) => {
       document.getElementById(id).innerText = id;
     };
-    
+
     DigitalRiver.createElement.mockImplementation((type, options) => {
       return {
         type: type,
@@ -124,7 +124,7 @@ describe('CloudPay - Credit Card', () => {
     });
 
     CloudPayCreditCard.init(DigitalRiver, {}, page);
-    
+
     map.click();
 
     expect(page.lastFourDigits.style.display).toEqual('none');

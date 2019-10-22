@@ -42,6 +42,7 @@ class Payload {
         'firstName': this.page.firstName.value,
         'lastName': this.page.lastName.value,
         'email': email,
+        'phoneNumber': this.page.phoneNumber.value,
         'address': {
           'line1': this.page.line1.value,
           'line2': this.page.line2.value,
@@ -72,13 +73,13 @@ class Payload {
 
       if (currentShopper.data.shopper.id === 'Anonymous') {
         billingEmail = this.page.email.value;
-        
+
         if (this.siteInfo.shippingRequired) {
           shippingEmail = this.page.shippingEmail.value;
         }
       } else {
-        const shopperBillingAddress = await getBillingAddress(this.testOrder, token);  
-        
+        const shopperBillingAddress = await getBillingAddress(this.testOrder, token);
+
         billingEmail = shopperBillingAddress.data.address.emailAddress;
 
         if (this.siteInfo.shippingRequired) {
@@ -105,7 +106,7 @@ class Payload {
 
       if (this.siteInfo.shippingRequired && this.page.shippingAddressCheckbox) {
         const isBillingOnly = !this.page.shippingAddressCheckbox.checked;
-  
+
         if (isBillingOnly) {
           addressObj = {
             'billingAddress': billingAddressObj,
@@ -135,7 +136,7 @@ class Payload {
           'billingAddress': billingAddressObj
         };
       }
-  
+
       return addressObj;
     } catch (error) {
       throw Error(error);
@@ -210,7 +211,7 @@ class Payload {
     } catch (error) {
       throw Error(error);
     }
-  }  
+  }
 }
 
 export default Payload;

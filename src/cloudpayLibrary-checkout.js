@@ -10,6 +10,7 @@ import {displayErrorMsg} from './utils';
  * @property {Object} siteInfo - The site information.
  * @property {string[]} enabledPayments - An array of the enabled payment types.
  * @property {Object} page - An instance of the Page class.
+ * @property {string} source - The payment source.
  * @property {string} sourceId - The payment sourceId.
  * @property {string} redirectUrl - The customer should be redirected to to continue the process.
  * @property {Function} init - A function that initiates the properties, attaches event handlers and pre-selects the payment method.
@@ -102,21 +103,25 @@ const CloudPayCheckout = {
    * @return {boolean} Whether the source's and the selected payment method are matched.
    */
   isSourceTypeMatched(source, selectedPayment) {
-    const sourceType = source.type;
+    if (source) {
+      const sourceType = source.type;
 
-    switch (selectedPayment) {
-      case 'CreditCardMethod': {
-        return (sourceType === 'creditCard');
+      switch (selectedPayment) {
+        case 'CreditCardMethod': {
+          return (sourceType === 'creditCard');
+        }
+        case 'PayPalExpressCheckout': {
+          return (sourceType === 'payPal');
+        }
+        case 'DirectDebit': {
+          return (sourceType === 'directDebit');
+        }
+        default: {
+          return false;
+        }
       }
-      case 'PayPalExpressCheckout': {
-        return (sourceType === 'payPal');
-      }
-      case 'DirectDebit': {
-        return (sourceType === 'directDebit');
-      }
-      default: {
-        return false;
-      }
+    } else {
+      return false;
     }
   },
   /**

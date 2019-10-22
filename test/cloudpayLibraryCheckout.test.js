@@ -47,6 +47,10 @@ Object.defineProperty(DigitalRiver, 'createSource', {
   value: jest.fn()
 });
 
+Object.defineProperty(DigitalRiver, 'retrieveSource', {
+  value: jest.fn()
+});
+
 const siteInfo = {
   apiKey : '6a0bb049109c4a0f8d8dff7db896254b',
   id: 'sotw2',
@@ -60,6 +64,29 @@ const siteInfo = {
 
 const enabledPayments = ['creditCard', 'payPal'];
 
+const localStorageMock = (() => {
+  let store = {};
+
+  return {
+    getItem(key) {
+      return store[key] || null;
+    },
+    setItem(key, value) {
+      store[key] = value.toString();
+    },
+    removeItem(key) {
+      delete store[key];
+    },
+    clear() {
+      store = {};
+    }
+  };
+})();
+
+Object.defineProperty(window, 'sessionStorage', {
+  value: localStorageMock
+});
+
 describe('CloudPay Checkout', () => {
   beforeAll(() => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -71,6 +98,7 @@ describe('CloudPay Checkout', () => {
 
   beforeEach(() => {
     setupDocumentBody();
+    window.sessionStorage.clear();
   });
 
   afterEach(() => {
@@ -97,8 +125,10 @@ describe('CloudPay Checkout', () => {
   test('test error with init', async () => {
     const page = new Page();
 
-    jest.spyOn(CloudPayCheckout, 'preSelectPayment').mockImplementationOnce(() => Promise.reject({errors: []}));
+    window.sessionStorage.setItem('paymentSourceId', '88888');
 
+    jest.spyOn(DigitalRiver, 'retrieveSource').mockImplementationOnce(() => Promise.reject({errors: []}));
+    
     await expect(CloudPayCheckout.init(DigitalRiver, siteInfo, enabledPayments, page)).rejects.toThrow();
   });
 
@@ -126,6 +156,7 @@ describe('CloudPay Checkout', () => {
 
   test('getSourceType test', async () => {
     const stubSourceId = '10ca197a-6710-4354-9760-ff889d2da66b';
+    const stubClientSecret = '10ca197a-6710-4354-9760-ff889d2da66b_88888';
     const stubPaymentSource = {
       'clientId': 'gc',
       'channelId': 'sotw2',
@@ -139,39 +170,26 @@ describe('CloudPay Checkout', () => {
       }
     };
 
-    mockAxios.get.mockImplementationOnce(() =>
+    jest.spyOn(DigitalRiver, 'retrieveSource').mockImplementationOnce(() => 
       Promise.resolve({
         data: stubPaymentSource
       })
     );
 
-    const paymentType = await CloudPayCheckout.getSourceType(stubSourceId);
+    const paymentSource = await DigitalRiver.retrieveSource(stubSourceId, stubClientSecret);
+    const paymentType = paymentSource.data.type;
 
     expect(paymentType).toEqual(stubPaymentSource.type);
-    expect(mockAxios.get).toHaveBeenCalledTimes(1);
-    expect(mockAxios.get).toHaveBeenCalledWith(`/sources/${stubSourceId}?apiKey=${siteInfo.apiKey}`);
+    expect(DigitalRiver.retrieveSource).toHaveBeenCalledTimes(2);
   });
 
-  test('test error with getSourceType', async () => {
-    const stubSourceId = '10ca197a-6710-4354-9760-ff889d2da66b';
-
-    mockAxios.get.mockImplementationOnce(() =>
-      Promise.reject({
-        errors: []
-      })
-    );
-
-    await expect(CloudPayCheckout.getSourceType(stubSourceId)).rejects.toThrow();
-  });
-
-  test('isSourceTypeMatched test without params', async () => {
-    const isMatched = await CloudPayCheckout.isSourceTypeMatched();
+  test('isSourceTypeMatched test without params', () => {
+    const isMatched = CloudPayCheckout.isSourceTypeMatched();
 
     expect(isMatched).not.toBeTruthy();
   });
 
-  test('isSourceTypeMatched test as type is matched', async () => {
-    const stubSourceId = '10ca197a-6710-4354-9760-ff889d2da66b';
+  test('isSourceTypeMatched test as type is matched', () => {
     const stubPaymentSource = {
       'clientId': 'gc',
       'channelId': 'sotw2',
@@ -182,13 +200,7 @@ describe('CloudPay Checkout', () => {
       'currency': 'USD'
     };
 
-    mockAxios.get.mockImplementationOnce(() =>
-      Promise.resolve({
-        data: stubPaymentSource
-      })
-    );
-
-    const isMatched = await CloudPayCheckout.isSourceTypeMatched(stubSourceId, 'CreditCardMethod');
+    const isMatched = CloudPayCheckout.isSourceTypeMatched(stubPaymentSource, 'CreditCardMethod');
 
     expect(isMatched).toBeTruthy();
   });
@@ -216,14 +228,6 @@ describe('CloudPay Checkout', () => {
 
     expect(isMatched).not.toBeTruthy();
     expect(notMatched).not.toBeTruthy();
-  });
-
-  test('test error with isSourceTypeMatched', async () => {
-    const stubSourceId = '10ca197a-6710-4354-9760-ff889d2da66b';
-
-    CloudPayCheckout.getSourceType = jest.fn(() => Promise.reject({errors: []}));
-
-    await expect(CloudPayCheckout.isSourceTypeMatched(stubSourceId, 'CreditCardMethod')).rejects.toThrow();
   });
 
   test('without the checkout button', async () => {
@@ -259,7 +263,8 @@ describe('CloudPay Checkout', () => {
       Promise.resolve({
         source: {
           id: 'SOURCE_ID',
-          type: 'creditCard'
+          type: 'creditCard',
+          clientSecret: 'CLIENT_SECRET'
         }
       })
     );
@@ -323,6 +328,7 @@ describe('CloudPay Checkout', () => {
       Promise.resolve({
         source: {
           id: 'PAYPAL_SOURCE_ID',
+          clientSecret: 'CLIENT_SECRET',
           redirect: {
             redirectUrl: 'http://dummy.com'
           }
@@ -508,15 +514,6 @@ describe('CloudPay Checkout', () => {
     expect(console.error).toHaveBeenCalledTimes(1);
   });
 
-  test('test error with preSelectPayment', async () => {
-    CloudPayCheckout.preSelectPayment.mockRestore();
-
-    const page = new Page();
-    CloudPayCheckout.getSourceType = jest.fn(() => Promise.reject({errors: []}));
-
-    await expect(CloudPayCheckout.preSelectPayment('SOURCE_ID', page)).rejects.toThrow();
-  });
-
   test('preSelectPayment test with creditCard type', async () => {
     const page = new Page();
     
@@ -529,13 +526,22 @@ describe('CloudPay Checkout', () => {
     expect(page.creditCardRadio.click).toHaveBeenCalledTimes(1);
   });
 
-  test('preSelectPayment test with payPal type', async () => {
+  test('preSelectPayment test with payPal type', () => {
     const page = new Page();
+    const stubPaymentSource = {
+      'clientId': 'gc',
+      'channelId': 'sotw2',
+      'liveMode': false,
+      'id': '10ca197a-6710-4354-9760-ff889d2da66b',
+      'type': 'payPal',
+      'reusable': false,
+      'currency': 'USD'
+    };
 
     page.payPalRadio.click = jest.fn();
     CloudPayCheckout.getSourceType = jest.fn(() => {return 'payPal';});
 
-    await CloudPayCheckout.preSelectPayment('SOURCE_ID', page);
+    CloudPayCheckout.preSelectPayment(stubPaymentSource, page);
 
     expect(page.payPalRadio.checked).toBeTruthy();
     expect(page.payPalRadio.click).toHaveBeenCalledTimes(1);

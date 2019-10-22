@@ -15,6 +15,7 @@ const setupDocumentBody = () => {
     '  <input name="BILLINGstate" value="state" id="billingState" type="text">' +
     '  <input name="BILLINGpostalCode" value="postalCode" id="billingPostalCode" type="text">' +
     '  <input name="BILLINGcountry" value="country" id="billingCountry" type="text">' +
+    '  <input name="BILLINGphoneNumber" value="000-000-0000" id="billingPhoneNumber" type="text">' +
     '</div>';
 };
 
@@ -36,16 +37,17 @@ describe('build the Credit Card payload', () => {
     expect(C).not.toBeNull();
     expect(C).toBeInstanceOf(CreditCardPayload);
   });
-   
+
   test('build the payload', async () => {
     const page = new Page();
     const C = new CreditCardPayload({currency: 'USD'}, page);
-    
+
     Payload.prototype.getOwnerObj = jest.fn(() => {
       return {
         'firstName': page.firstName.value,
         'lastName': page.lastName.value,
         'email': page.email.value,
+        'phoneNumber': page.phoneNumber.value,
         'address': {
           'line1': page.line1.value,
           'line2': page.line2.value,
@@ -58,7 +60,7 @@ describe('build the Credit Card payload', () => {
     });
 
     const payload = await C.buildPayload();
-  
+
     expect(payload).toEqual(
       expect.objectContaining({
         'type': 'creditCard',
@@ -68,6 +70,7 @@ describe('build the Credit Card payload', () => {
           'firstName': 'name1',
           'lastName': 'name2',
           'email': 'email',
+          'phoneNumber': '000-000-0000',
           'address': {
             'line1': 'address1',
             'line2': 'address2',
@@ -76,7 +79,7 @@ describe('build the Credit Card payload', () => {
             'postalCode': 'postalCode',
             'country': 'country'
           }
-        } 
+        }
       }),
       expect.not.objectContaining({
         'payPal': 'test'

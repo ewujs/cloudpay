@@ -15,6 +15,7 @@ const setupDocumentBody = () => {
     '  <input name="BILLINGstate" value="state" id="billingState" type="text">' +
     '  <input name="BILLINGpostalCode" value="postalCode" id="billingPostalCode" type="text">' +
     '  <input name="BILLINGcountry" value="country" id="billingCountry" type="text">' +
+    '  <input name="BILLINGphoneNumber" value="000-000-0000" id="billingPhoneNumber" type="text">' +
     '</div>';
 };
 
@@ -36,17 +37,18 @@ describe('build the Direct Debit payload', () => {
     expect(D).not.toBeNull();
     expect(D).toBeInstanceOf(DirectDebitPayload);
   });
-   
+
   test('build the payload', async () => {
     const page = new Page();
     const D = new DirectDebitPayload({currency: 'EUR', returnUrl: 'http://mypage.com'}, page);
-    
+
     Payload.prototype.getAmount = jest.fn();
     Payload.prototype.getOwnerObj = jest.fn(() => {
       return {
         'firstName': page.firstName.value,
         'lastName': page.lastName.value,
         'email': page.email.value,
+        'phoneNumber': page.phoneNumber.value,
         'address': {
           'line1': page.line1.value,
           'line2': page.line2.value,
@@ -59,7 +61,7 @@ describe('build the Direct Debit payload', () => {
     });
 
     const payload = await D.buildPayload();
-  
+
     expect(payload).toEqual(
       expect.objectContaining({
         'type': 'directDebit',
@@ -72,6 +74,7 @@ describe('build the Direct Debit payload', () => {
           'firstName': 'name1',
           'lastName': 'name2',
           'email': 'email',
+          'phoneNumber': '000-000-0000',
           'address': {
             'line1': 'address1',
             'line2': 'address2',
@@ -79,7 +82,7 @@ describe('build the Direct Debit payload', () => {
             'postalCode': 'postalCode',
             'country': 'country'
           }
-        } 
+        }
       }),
       expect.not.objectContaining({
         'payPal': 'test'
