@@ -2,7 +2,6 @@ import CreditCardPayload from './payload/creditcard-payload';
 import PayPalPayload from './payload/paypal-payload';
 import CloudPayCreditCard from './cloudpayLibrary-creditcard';
 import {displayErrorMsg} from './utils';
-import {getPaymentSource} from './apiEndpoints';
 
 /**
  * A CloudPayCheckout object.
@@ -15,7 +14,7 @@ import {getPaymentSource} from './apiEndpoints';
  * @property {string} redirectUrl - The customer should be redirected to to continue the process.
  * @property {Function} init - A function that initiates the properties, attaches event handlers and pre-selects the payment method.
  * @property {Function} updatePaymentMethodId - A function that sets the payment method ID to the value of CloudPay's ID.
- * @property {Function} getSourceType - A function that gets the type of a source.
+ * @property {Function} retrieveSource - A function that retrieves the source.
  * @property {Function} isSourceTypeMatched - A function that checks if the type and the selected payment method are matched.
  * @property {Function} preSelectPayment - A function that pre-selects the payment method on page load.
  * @property {Function} submitCart - A function that submits the cart.
@@ -26,6 +25,7 @@ const CloudPayCheckout = {
   siteInfo: null,
   enabledPayments: null,
   page: null,
+  source: null,
   sourceId: null,
   redirectUrl: null,
   /**
@@ -42,13 +42,18 @@ const CloudPayCheckout = {
     this.enabledPayments = enabledPayments;
     this.page = page;
     this.sourceId = sessionStorage.getItem('paymentSourceId');
+    this.sourceClientSecret = sessionStorage.getItem('sourceClientSecret');
     this.addEventListener();
 
-    try {
-      await this.preSelectPayment(this.sourceId, page);
-    } catch (error) {
-      throw Error(error);
+    if (this.sourceId) {
+      try {
+        this.source = await drPayments.retrieveSource(this.sourceId, this.sourceClientSecret);
+      } catch (error) {
+        throw Error(error);
+      }
     }
+
+    this.preSelectPayment(this.source, page);
   },
   /**
    * Set the payment method ID to the value of CloudPay's ID.
@@ -62,20 +67,21 @@ const CloudPayCheckout = {
     }
   },
   /**
-   * Get the source's type from a sourceId and update the paymentSource property.
+   * Retrieve the source.
    * @async
    * @param {string} sourceId - The sourceId.
+   * @param {string} sourceClientSecret - The client secret.
    * @return {string} The source's type.
    */
-  async getSourceType(sourceId) {
+  async retrieveSource(sourceId, sourceClientSecret) {
     try {
-      const res = await getPaymentSource(sourceId, this.siteInfo.apiKey);
+      const res = await this.drPayments.retrieveSource(sourceId, sourceClientSecret);
 
       if (res.data.redirect) {
         this.redirectUrl = res.data.redirect.redirectUrl;
       }
 
-      return res.data.type;
+      return res.data;
     } catch (error) {
       throw Error(error);
     }
@@ -91,87 +97,73 @@ const CloudPayCheckout = {
   },
   /**
    * Check if the source's type and the selected payment method are matched.
-   * @async
-   * @param {string} sourceId - The sourceId.
+   * @param {string} source - The source.
    * @param {string} selectedPayment - The element's identifier of the selected payment method.
    * @return {boolean} Whether the source's and the selected payment method are matched.
    */
-  async isSourceTypeMatched(sourceId, selectedPayment) {
-    if (sourceId) {
-      try {
-        const sourceType = await this.getSourceType(sourceId);
+  isSourceTypeMatched(source, selectedPayment) {
+    const sourceType = source.type;
 
-        switch (selectedPayment) {
-          case 'CreditCardMethod': {
-            return (sourceType === 'creditCard');
-          }
-          case 'PayPalExpressCheckout': {
-            return (sourceType === 'payPal');
-          }
-          case 'DirectDebit': {
-            return (sourceType === 'directDebit');
-          }
-          default: {
-            return false;
-          }
-        }
-      } catch (error) {
-        throw Error(error);
+    switch (selectedPayment) {
+      case 'CreditCardMethod': {
+        return (sourceType === 'creditCard');
       }
-    } else {
-      return false;
+      case 'PayPalExpressCheckout': {
+        return (sourceType === 'payPal');
+      }
+      case 'DirectDebit': {
+        return (sourceType === 'directDebit');
+      }
+      default: {
+        return false;
+      }
     }
   },
   /**
    * Pre-select the payment method on page load.
-   * @async
-   * @param {string} sourceId - The payment sourceId.
+   * @param {string} source - The source.
    * @param {string} page - An instance of the Page class.
    */
-  async preSelectPayment(sourceId, page) {
-    if (sourceId) {
-      try {
-        const sourceType = await this.getSourceType(sourceId);
+  preSelectPayment(source, page) {
+    if (source) {
+      const sourceType = source.type;
 
-        if (sourceType !== 'creditCard') {
-          this.resetCreditCardSection();
-        }
-
-        switch (sourceType) {
-          case 'creditCard': {
-            if (page.creditCardRadio) {
-              page.creditCardRadio.checked = true;
-              page.creditCardRadio.click();
-            }
-            
-            break;
-          }
-          case 'payPal': {
-            if (page.payPalRadio) {
-              page.payPalRadio.checked = true;
-              page.payPalRadio.click();
-            }
-            
-            break;
-          }
-          case 'directDebit': {
-            if (page.directDebitRadio) {
-              page.directDebitRadio.checked = true;
-              page.directDebitRadio.click();
-            }
-
-            break;
-          }
-          default: {
-            if (page.creditCardRadio) {
-              page.creditCardRadio.checked = true;
-              page.creditCardRadio.click();
-            }
-          }
-        }
-      } catch (error) {
-        throw Error(error);
+      if (sourceType !== 'creditCard') {
+        this.resetCreditCardSection();
       }
+
+      switch (sourceType) {
+        case 'creditCard': {
+          if (page.creditCardRadio) {
+            page.creditCardRadio.checked = true;
+            page.creditCardRadio.click();
+          }
+          
+          break;
+        }
+        case 'payPal': {
+          if (page.payPalRadio) {
+            page.payPalRadio.checked = true;
+            page.payPalRadio.click();
+          }
+          
+          break;
+        }
+        case 'directDebit': {
+          if (page.directDebitRadio) {
+            page.directDebitRadio.checked = true;
+            page.directDebitRadio.click();
+          }
+
+          break;
+        }
+        default: {
+          if (page.creditCardRadio) {
+            page.creditCardRadio.checked = true;
+            page.creditCardRadio.click();
+          }
+        }
+      }      
     } else {
       if (document.querySelector('input[name="paymentMethodID"]:first-child')) {
         document.querySelector('input[name="paymentMethodID"]:first-child').checked = true;
@@ -197,6 +189,7 @@ const CloudPayCheckout = {
             displayErrorMsg(this.page, result.errors[0].message);
           } else {
             sessionStorage.setItem('paymentSourceId', result.source.id);
+            sessionStorage.setItem('sourceClientSecret', result.source.clientSecret);
             this.sourceId = result.source.id;
             this.page.checkoutForm.elements['cloudPaySourceID'].value = result.source.id;
             this.page.checkoutForm.submit();
@@ -216,6 +209,7 @@ const CloudPayCheckout = {
               displayErrorMsg(this.page, result.errors[0].message);
             } else {
               sessionStorage.setItem('paymentSourceId', result.source.id);
+              sessionStorage.setItem('sourceClientSecret', result.source.clientSecret);
               this.sourceId = result.source.id;
               this.page.checkoutForm.elements['cloudPaySourceID'].value = result.source.id;
               window.location.href = result.source.redirect.redirectUrl;
@@ -265,10 +259,6 @@ const CloudPayCheckout = {
             this.page.checkoutForm.submit();
           }
         }
-      });
-
-      document.addEventListener('DOMContentLoaded', (event) => {
-        
       });
     }
   }
